@@ -8,13 +8,23 @@ EXIT=0
 for file in $(find $1 -name '*.rb')
 do
   OUTPUT=$(ruby -c $file 2>&1 )
-  if [ "$OUTPUT" != "Syntax OK" ]; then
-    ERRORS=$ERRORS"\n"$OUTPUT
+  if [[ "$OUTPUT" =~ "warning" ]]; then
+    OUTPUT=$(echo $OUTPUT)
+    WARNINGS="$WARNINGS$OUTPUT"
+    printf '.'
+  elif [[ "$OUTPUT" =~ "error" ]]; then
+    ERRORS="$ERRORS\n$OUTPUT"
     printf 'x'
     EXIT=1
   else
     printf '.'
   fi
 done
-echo $ERRORS
+
+printf "\nWarnings:\n"
+printf "$WARNINGS\n"
+echo "-------------------------------------------------"
+printf "Errors:"
+printf "$ERRORS\n"
+
 exit $EXIT
